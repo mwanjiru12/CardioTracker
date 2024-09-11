@@ -1,6 +1,4 @@
-Flatiron Phase 5/Capstone Project
 
-by Charles Jarvis
 
 This app is intended to be a sort of fitness tracking application, with a specific focus on cardio-centric exercises.
 This idea was born out of a personal need for something like this, as right now I really just use a whiteboard calendar on my wall, and adding some more measurements/categories I think would be very useful.

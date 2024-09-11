@@ -24,7 +24,7 @@ function App() {
   const authFetch = useAuthorizedFetch()
   // const navigate = useNavigate()
 
-  const ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://cardio-calendar.herokuapp.com' : 'http://localhost:3000'
+  const ENDPOINT = process.env.NODE_ENV === 'production' ? 'https://cardio-calendar.herokuapp.com' : 'http://localhost:5000'
 
   const gradient = keyframes`
     0% {
