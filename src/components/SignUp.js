@@ -1,5 +1,5 @@
-import { Button, Grid, TextField, Typography, FormControl } from '@mui/material';
-import React from 'react';
+import { Button, Grid, TextField, Typography, FormControl, FormHelperText } from '@mui/material';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { errorMessageState, loggedInState, passwordState, usernameState } from '../recoil/atoms';
@@ -7,18 +7,24 @@ import { errorMessageState, loggedInState, passwordState, usernameState } from '
 function SignUp({ setUser, ENDPOINT }) {
     const [username, setUsername] = useRecoilState(usernameState);
     const [password, setPassword] = useRecoilState(passwordState);
+    const [name, setName] = useState('');
+    const [location, setLocation] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const setLoggedIn = useSetRecoilState(loggedInState);
     const setErrorMessage = useSetRecoilState(errorMessageState);
     const navigate = useNavigate();
 
     function handleSignup(e) {
         e.preventDefault();
+        setError('');
+        setLoading(true);
 
         const userObj = {
-            user: {
-                username,
-                password
-            }
+            username,
+            password,
+            name,
+            location,
         };
 
         fetch(`${ENDPOINT}/register`, {
@@ -31,13 +37,12 @@ function SignUp({ setUser, ENDPOINT }) {
         .then(response => response.json())
         .then(data => {
             if (data.message === "User created successfully") {
-                // Automatically log in the user after registration
                 return fetch(`${ENDPOINT}/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(userObj),
+                    body: JSON.stringify({ username, password }),
                 });
             } else {
                 throw new Error('Signup failed');
@@ -50,6 +55,8 @@ function SignUp({ setUser, ENDPOINT }) {
                 setUser(data.user);
                 setUsername('');
                 setPassword('');
+                setName('');
+                setLocation('');
                 setLoggedIn(true);
                 navigate('/home');
             } else {
@@ -57,7 +64,11 @@ function SignUp({ setUser, ENDPOINT }) {
             }
         })
         .catch(error => {
+            setError(error.message);
             setErrorMessage(error.message);
+        })
+        .finally(() => {
+            setLoading(false);
         });
     }
 
@@ -71,7 +82,7 @@ function SignUp({ setUser, ENDPOINT }) {
                 style={{ minHeight: '95vh' }}
             >
                 <Grid item xs={12} align="center">
-                    <FormControl sx={{ m: 2 }}>
+                    <FormControl sx={{ m: 2 }} component="form" onSubmit={handleSignup}>
                         <Typography variant='h4'>
                             Sign Up!
                         </Typography>
@@ -93,12 +104,30 @@ function SignUp({ setUser, ENDPOINT }) {
                             onChange={(e) => setPassword(e.target.value)}
                             label="Password"
                         />
+                        <TextField
+                            sx={{ m: 2 }}
+                            required
+                            id="name"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            label="Name"
+                        />
+                        <TextField
+                            sx={{ m: 2 }}
+                            required
+                            id="location"
+                            value={location}
+                            onChange={(e) => setLocation(e.target.value)}
+                            label="Location"
+                        />
+                        {error && <FormHelperText error>{error}</FormHelperText>}
                         <Button
                             sx={{ m: 2 }}
-                            onClick={handleSignup}
+                            type="submit"
                             variant="contained"
+                            disabled={loading}
                         >
-                            Sign Up
+                            {loading ? 'Signing Up...' : 'Sign Up'}
                         </Button>
                         <Button
                             variant='contained'

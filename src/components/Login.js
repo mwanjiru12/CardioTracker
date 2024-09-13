@@ -1,31 +1,22 @@
 import { Button, Container, FormControl, Grid, TextField, Typography } from '@mui/material';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useRecoilState } from 'recoil';
-import { passwordState, usernameState } from '../recoil/atoms';
 
 function Login({ setUser, ENDPOINT }) {
-    const [username, setUsername] = useRecoilState(usernameState);
-    const [password, setPassword] = useRecoilState(passwordState);
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
     async function handleLogin(e) {
         e.preventDefault();
 
-        const userObj = {
-            user: {
-                username,
-                password
-            }
-        };
+        const userObj = { username, password };
 
         try {
             const response = await fetch(`${ENDPOINT}/login`, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: 'include',  // Ensure cookies are sent with the request
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include',  // Send credentials with request
                 body: JSON.stringify(userObj),
             });
 
@@ -61,14 +52,11 @@ function Login({ setUser, ENDPOINT }) {
             >
                 <Grid item xs={12} align="center">
                     <FormControl sx={{ m: 2 }}>
-                        <Typography variant='h4'>
-                            Login
-                        </Typography>
+                        <Typography variant='h4'>Login</Typography>
                         <TextField
                             sx={{ m: 2 }}
                             required
                             id="username"
-                            autoComplete="off"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
                             label="Username"
@@ -82,20 +70,8 @@ function Login({ setUser, ENDPOINT }) {
                             onChange={(e) => setPassword(e.target.value)}
                             label="Password"
                         />
-                        <Button
-                            sx={{ m: 2 }}
-                            onClick={handleLogin}
-                            variant="contained"
-                        >
-                            Login
-                        </Button>
-                        <Button
-                            variant='contained'
-                            component={Link}
-                            to="/signup"
-                        >
-                            Sign Up Instead
-                        </Button>
+                        <Button sx={{ m: 2 }} onClick={handleLogin} variant="contained">Login</Button>
+                        <Button variant='contained' component={Link} to="/signup">Sign Up Instead</Button>
                     </FormControl>
                 </Grid>
             </Grid>
