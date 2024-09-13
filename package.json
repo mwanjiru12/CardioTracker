@@ -15,7 +15,7 @@
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
     "cldr-data": "^36.0.1",
-    "dayjs": "^1.11.5",
+    "dayjs": "^1.11.13",
     "globalize": "^1.7.0",
     "iana-tz-data": "^2019.1.0",
     "react": "^18.2.0",

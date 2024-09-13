@@ -1,16 +1,15 @@
-import { Button, Container, FormControl, Grid, TextField, Typography } from '@mui/material'
-import React from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Button, Grid, TextField, Typography, FormControl } from '@mui/material';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useRecoilState, useSetRecoilState } from 'recoil';
 import { errorMessageState, loggedInState, passwordState, usernameState } from '../recoil/atoms';
 
 function SignUp({ setUser, ENDPOINT }) {
-    const [username, setUsername] = useRecoilState(usernameState)
-    const [password, setPassword] = useRecoilState(passwordState)
-    const setLoggedIn = useSetRecoilState(loggedInState)
-    const setErrorMessage = useSetRecoilState(errorMessageState)
-
-    const navigate = useNavigate()
+    const [username, setUsername] = useRecoilState(usernameState);
+    const [password, setPassword] = useRecoilState(passwordState);
+    const setLoggedIn = useSetRecoilState(loggedInState);
+    const setErrorMessage = useSetRecoilState(errorMessageState);
+    const navigate = useNavigate();
 
     function handleSignup(e) {
         e.preventDefault();
@@ -20,56 +19,60 @@ function SignUp({ setUser, ENDPOINT }) {
                 username,
                 password
             }
-        }
+        };
 
-
-        fetch(`${ENDPOINT}/users`, {
+        fetch(`${ENDPOINT}/register`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(userObj),
         })
-        .then((r) => r.json())
-        .then((r) => {
-            if ((r).status ==="created") {
-                fetch(`${ENDPOINT}/login`, {
+        .then(response => response.json())
+        .then(data => {
+            if (data.message === "User created successfully") {
+                // Automatically log in the user after registration
+                return fetch(`${ENDPOINT}/login`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify(userObj),
-                })
-                .then((r) => r.json())
-                .then((r) => {
-                    localStorage.setItem('token', r.jwt)
-                    setUser(r.user)
-                    setUsername('')
-                    setPassword('')
-                    setLoggedIn(true)
-                })
-                setErrorMessage("")
-                navigate('/home')
+                });
+            } else {
+                throw new Error('Signup failed');
             }
         })
-        .catch((r) => 
-            setErrorMessage("Signup failed")
-        )
+        .then(response => response.json())
+        .then(data => {
+            if (data.user && data.access_token) {
+                localStorage.setItem('token', data.access_token); // Store JWT in localStorage
+                setUser(data.user);
+                setUsername('');
+                setPassword('');
+                setLoggedIn(true);
+                navigate('/home');
+            } else {
+                throw new Error('Login failed after signup');
+            }
+        })
+        .catch(error => {
+            setErrorMessage(error.message);
+        });
     }
 
     return (
-        <Grid >
+        <Grid>
             <Grid 
-            container
-            direction='column'
-            alignItems={'center'}
-            justifyContent={'center'}
-            style={{ minHeight: '95vh'}}
-        
-        >
+                container
+                direction='column'
+                alignItems={'center'}
+                justifyContent={'center'}
+                style={{ minHeight: '95vh' }}
+            >
                 <Grid item xs={12} align="center">
-                    <FormControl sx={{ m: 2 }} >
-                        <Typography variant='h4' justifySelf={'center'}>
+                    <FormControl sx={{ m: 2 }}>
+                        <Typography variant='h4'>
                             Sign Up!
                         </Typography>
                         <TextField
@@ -98,12 +101,12 @@ function SignUp({ setUser, ENDPOINT }) {
                             Sign Up
                         </Button>
                         <Button
-                        variant='contained'
-                        component={Link}
-                        to="/"
+                            variant='contained'
+                            component={Link}
+                            to="/"
                         >
-                        Log In Instead
-                    </Button>
+                            Log In Instead
+                        </Button>
                     </FormControl>
                 </Grid>
             </Grid>
@@ -111,4 +114,4 @@ function SignUp({ setUser, ENDPOINT }) {
     );
 }
 
-export default SignUp
+export default SignUp;
